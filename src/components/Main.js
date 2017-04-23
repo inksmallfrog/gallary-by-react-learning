@@ -15,6 +15,31 @@ imageDatas = ((imageDatasArr) => {
   return imageDatasArr;
 })(imageDatas);
 
+class ControllerUnit extends React.Component{
+  handleClick(e){
+    if(this.props.arrange.isCenter){
+      this.props.inverse();
+    }
+    else{
+      this.props.center();
+    }
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  render(){
+    let className = "controller-unit";
+    if(this.props.arrange.isCenter){
+      className += " is-center";
+      if(this.props.arrange.isInverse){
+        className += " is-inverse";
+      }
+    }
+    return(
+      <span className={className} onClick={this.handleClick.bind(this)}></span>
+    )
+  }
+}
+
 class ImgFigure extends React.Component {
     handleClick(e){
       if(this.props.arrange.isCenter) this.props.inverse();
@@ -57,7 +82,7 @@ class ImgFigure extends React.Component {
 }
 
 function getRangeRandom(low, high){
-  return Math.ceil(Math.random() * (high - low) + low);
+  return Math.floor(Math.random() * (high - low) + low);
 }
 /*
  * 获取0～30度之间的任意正负值
@@ -80,7 +105,9 @@ class AppComponent extends React.Component {
               isInverse: false
               isCenter: false
             }*/
-          ]
+          ],
+        controllerUnits:[
+        ]
       };
     this.Constant = {
       centerPos: {
@@ -126,7 +153,7 @@ class AppComponent extends React.Component {
         vPosRangeTopY = vPosRange.topY,
         vPosRangeX = vPosRange.x,
         imgsArrangeTopArr = [],
-        topImgNum = Math.ceil(Math.random() * 2),
+        topImgNum = getRangeRandom(0, 2),
         topImgSpliceIndex = 0,
         imgsArrangeCenterArr = imgsArrangeArr.splice(centerIndex, 1);
 
@@ -161,7 +188,8 @@ class AppComponent extends React.Component {
             top: getRangeRandom(hPosRange.y[0], hPosRange.y[1]),
             left: getRangeRandom(hPosRangeLORX[0], hPosRangeLORX[1])
           },
-          rotate: get30DegRandom()
+          rotate: get30DegRandom(),
+          isCenter: false
         }
       }
 
@@ -214,7 +242,6 @@ class AppComponent extends React.Component {
   }
 
   render() {
-    let controllerUnits = [];
     return (
       <section className="stage" ref="stage">
         <section className="img-sec">
@@ -241,7 +268,16 @@ class AppComponent extends React.Component {
           })}
         </section>
         <nav className="controller-nav">
-          {controllerUnits}
+          {imageDatas.map((value, index)=>{
+              return(
+                <ControllerUnit
+                  key={index}
+                  arrange={this.state.imgsArrangeArr[index]}
+                  inverse={this.inverse(index)}
+                  center={this.center(index)}
+                />
+              )
+          })}
         </nav>
       </section>
     );
